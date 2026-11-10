@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Teen Patti — Interactive 3D Visual Guide & Simulator</title>
+  <meta name="description" content="An interactive, 3D visual guide to India's favorite 3-card poker game. Learn Teen Patti hand rankings, table rules, betting loops, and test your skills." />
+
+  <!-- Google Fonts: Cinzel (Headings), Plus Jakarta Sans (Body), JetBrains Mono (Stats/Metrics) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#0A0B0E',
+            emeraldDeep: '#062319',
+            gold: '#D4AF37',
+            amberGlow: '#FFBF00',
+            neonEmerald: '#10B981',
+            crimson: '#EF4444',
+          },
+          fontFamily: {
+            heading: ['Cinzel', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Custom Modular Stylesheet -->
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- Three.js, GSAP, and Lucide Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+</head>
+<body class="bg-obsidian text-slate-100 font-sans antialiased selection:bg-gold/30 selection:text-amberGlow overflow-x-hidden">
+
+  <!-- Ambient Background Layers -->
+  <div class="ambient-bg-layer" aria-hidden="true">
+    <div class="felt-noise-overlay"></div>
+    <div class="ambient-orb orb-gold"></div>
+    <div class="ambient-orb orb-emerald"></div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <header class="fixed top-0 left-0 right-0 z-50 nav-glass border-b border-gold/20 transition-all duration-300" id="main-navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Brand Logo -->
+      <a href="#hero" class="flex items-center gap-3 group focus:outline-none">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-gold via-amberGlow to-amber-700 p-[1.5px] shadow-lg shadow-gold/20 group-hover:shadow-gold/40 transition-all">
+          <div class="w-full h-full bg-obsidian rounded-[10px] flex items-center justify-center">
+            <span class="text-gold font-heading font-bold text-xl tracking-wider">♠</span>
+          </div>
+        </div>
+        <div>
+          <span class="font-heading font-bold text-lg sm:text-xl tracking-wider text-white block leading-none">
+            TEEN PATTI <span class="text-gold-gradient">ROYALE</span>
+          </span>
+          <span class="text-[11px] font-mono uppercase tracking-widest text-emerald-400/90 block mt-0.5">
+            Interactive 3D Academy
+          </span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 lg:gap-2" aria-label="Primary Navigation">
+        <a href="#hero" class="nav-link px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-gold transition-colors">Overview</a>
+        <a href="#hand-rankings" class="nav-link px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-gold transition-colors">3D Hand Ranks</a>
+        <a href="#game-simulator" class="nav-link px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-gold transition-colors">Table Simulator</a>
+        <a href="#quiz-engine" class="nav-link px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-gold transition-colors">Skill Quiz</a>
+        <a href="#glossary" class="nav-link px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-gold transition-colors">Cheat Sheet</a>
+      </nav>
+
+      <!-- Action Controls -->
+      <div class="flex items-center gap-3">
+        <button
+          id="nav-sound-toggle"
+          type="button"
+          class="glass-pill-btn px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-200 hover:border-gold/60 transition-all"
+          aria-label="Toggle Sound Effects"
+          title="Toggle Audio Effects (Shortcut: M)"
+        >
+          <i data-lucide="volume-2" class="w-4 h-4 text-gold" id="nav-sound-icon"></i>
+          <span id="nav-sound-label" class="hidden sm:inline">SFX: ON</span>
+        </button>
+
+        <a
+          href="#quiz-engine"
+          class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold to-amberGlow text-obsidian font-semibold text-xs uppercase tracking-wider shadow-lg shadow-gold/20 hover:shadow-gold/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+        >
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          <span>Play Quiz</span>
+        </a>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-menu-btn"
+          type="button"
+          class="md:hidden p-2.5 rounded-xl glass-panel text-slate-200 hover:text-gold"
+          aria-label="Open Navigation Menu"
+          aria-expanded="false"
+        >
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-gold/20 px-4 pt-3 pb-5 space-y-2">
+      <a href="#hero" class="mobile-nav-link block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-gold/10 hover:text-gold">Overview</a>
+      <a href="#hand-rankings" class="mobile-nav-link block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-gold/10 hover:text-gold">3D Hand Rankings</a>
+      <a href="#game-simulator" class="mobile-nav-link block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-gold/10 hover:text-gold">Step-by-Step Simulator</a>
+      <a href="#quiz-engine" class="mobile-nav-link block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-gold/10 hover:text-gold">Which Hand Wins? Quiz</a>
+      <a href="#glossary" class="mobile-nav-link block px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-gold/10 hover:text-gold">Terminology Cheat Sheet</a>
+    </div>
+  </header>
+
+  <main class="relative z-10 pt-20">
+    <!-- =====================================================================
+         SECTION A: DYNAMIC HERO SECTION
+    ====================================================================== -->
+    <section id="hero" class="relative min-h-[calc(100vh-5rem)] flex flex-col justify-between py-10 lg:py-16 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          
+          <!-- Left Column: Hero Copy & CTAs -->
+          <div class="lg:col-span-6 space-y-6 text-center lg:text-left hero-animate-in">
+            <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-panel border border-gold/40 text-xs font-mono uppercase tracking-widest text-gold shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-neonEmerald animate-ping"></span>
+              <span>Interactive 3D Casino Masterclass</span>
+            </div>
+
+            <h1 class="font-heading font-extrabold text-4xl sm:text-5xl xl:text-6xl leading-[1.12] tracking-tight text-white">
+              Master Teen Patti — <span class="text-gold-gradient block mt-1">From Rules to Winning Hands.</span>
+            </h1>
+
+            <p class="text-base sm:text-lg text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+              An interactive, 3D visual guide to India's favorite 3-card poker game. Inspect royal hands in real-time 3D space, walk through live betting rounds, and sharpen your instincts under pressure.
+            </p>
+
+            <!-- Primary & Secondary CTAs -->
+            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+              <a
+                href="#hand-rankings"
+                id="cta-start-tour"
+                class="btn-gold-primary px-7 py-4 rounded-2xl font-bold text-sm sm:text-base tracking-wide text-obsidian flex items-center gap-3 shadow-xl shadow-gold/25 hover:shadow-gold/40 transition-all"
+              >
+                <span>Start Interactive Tour</span>
+                <i data-lucide="compass" class="w-5 h-5"></i>
+              </a>
+
+              <a
+                href="#quiz-engine"
+                id="cta-test-skills"
+                class="btn-glass-secondary px-7 py-4 rounded-2xl font-semibold text-sm sm:text-base tracking-wide text-white border border-gold/40 hover:border-gold flex items-center gap-3 transition-all"
+              >
+                <i data-lucide="trophy" class="w-5 h-5 text-gold"></i>
+                <span>Test Your Skills (Quiz)</span>
+              </a>
+            </div>
+
+            <!-- Interactive Hero Mini-Guide Pills -->
+            <div class="pt-3 flex flex-wrap items-center justify-center lg:justify-start gap-3 text-xs text-slate-400">
+              <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/70 border border-slate-800">
+                <i data-lucide="mouse-pointer-click" class="w-3.5 h-3.5 text-gold"></i>
+                <span>Move mouse to tilt 3D cards</span>
+              </div>
+              <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/70 border border-slate-800">
+                <i data-lucide="rotate-3d" class="w-3.5 h-3.5 text-neonEmerald"></i>
+                <span>Click any 3D card to flip</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Interactive 3D Canvas Showcase (A♠, K♠, Q♠) -->
+          <div class="lg:col-span-6 relative">
+            <div class="relative rounded-3xl glass-panel-gold p-3 sm:p-4 shadow-2xl overflow-hidden">
+              <!-- Top HUD Bar inside 3D Viewport -->
+              <div class="flex items-center justify-between px-3 py-2 mb-2 rounded-xl bg-obsidian/70 border border-gold/20 text-xs font-mono">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-neonEmerald"></span>
+                  <span class="text-gold font-semibold">ROYAL PURE SEQUENCE: A♠ K♠ Q♠</span>
+                </div>
+                <span id="webgl-status-badge" class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px]">
+                  3D WebGL Active
+                </span>
+              </div>
+
+              <!-- 3D WebGL Canvas Mount + Interactive Fallback -->
+              <div
+                id="hero-3d-canvas-container"
+                class="relative w-full h-[380px] sm:h-[430px] rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing select-none felt-canvas-bg"
+                role="region"
+                aria-label="Interactive 3D Playing Cards Showcase displaying Ace of Spades, King of Spades, and Queen of Spades"
+              >
+                <!-- Fallback / Overlay DOM 3D Cards (shown if WebGL is unavailable or toggled) -->
+                <div id="hero-fallback-cards" class="hidden inset-0 flex items-center justify-center gap-4 p-6 perspective-1000">
+                  <!-- Populated dynamically if WebGL is disabled -->
+                </div>
+
+                <!-- Floating Card Badges -->
+                <div class="pointer-events-none absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-slate-300/90 bg-obsidian/75 backdrop-blur-md px-3.5 py-2 rounded-xl border border-gold/20">
+                  <span id="hero-card-telemetry">TILT: 0.0° , 0.0° | HAND: PURE SEQUENCE (90% RANK)</span>
+                  <span class="text-gold hidden sm:inline">CLICK CARD TO FLIP</span>
+                </div>
+              </div>
+
+              <!-- Interactive 3D Controls Bar -->
+              <div class="mt-3 flex flex-wrap items-center justify-between gap-2 px-1">
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    id="hero-btn-flip-all"
+                    class="px-3.5 py-2 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/40 text-gold text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                  >
+                    <i data-lucide="flip-horizontal" class="w-3.5 h-3.5"></i>
+                    <span>Flip Cards</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="hero-btn-fan"
+                    class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600/50 text-slate-200 text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                  >
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amberGlow"></i>
+                    <span>Deal &amp; Fan</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="hero-btn-reset"
+                    class="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600/50 text-slate-300 text-xs font-mono uppercase tracking-wider transition-all"
+                  >
+                    Reset View
+                  </button>
+                </div>
+                <div class="text-xs font-mono text-slate-400">
+                  Cards: <strong class="text-white">A♠ K♠ Q♠</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Stats Bar / Metrics Ticker Below Hero -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-12">
+        <div class="glass-panel-gold rounded-2xl p-4 sm:p-6 border border-gold/30 shadow-xl">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 divide-y sm:divide-y-0 sm:divide-x divide-gold/20">
+            <div class="flex items-center gap-3.5 pt-2 sm:pt-0 px-2">
+              <div class="w-11 h-11 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center shrink-0 text-gold font-mono font-bold text-lg">
+                52
+              </div>
+              <div>
+                <div class="font-heading font-bold text-white text-base sm:text-lg">52 Cards</div>
+                <div class="text-xs text-slate-400 font-mono">Standard Deck (No Jokers)</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3.5 pt-3 sm:pt-0 sm:pl-6 px-2">
+              <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 text-neonEmerald font-mono font-bold text-lg">
+                3
+              </div>
+              <div>
+                <div class="font-heading font-bold text-white text-base sm:text-lg">3 Cards per Player</div>
+                <div class="text-xs text-slate-400 font-mono">Dealt Face-Down (Blind/Seen)</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3.5 pt-3 lg:pt-0 lg:pl-6 px-2">
+              <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 text-amberGlow font-mono font-bold text-lg">
+                6
+              </div>
+              <div>
+                <div class="font-heading font-bold text-white text-base sm:text-lg">6 Core Hand Rankings</div>
+                <div class="text-xs text-slate-400 font-mono">From High Card to Royal Trio</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3.5 pt-3 lg:pt-0 lg:pl-6 px-2">
+              <div class="w-11 h-11 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0 text-gold font-mono font-bold text-sm">
+                100%
+              </div>
+              <div>
+                <div class="font-heading font-bold text-white text-base sm:text-lg">100% Skill &amp; Strategy</div>
+                <div class="text-xs text-slate-400 font-mono">Probability, Reading &amp; Pot Odds</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION B: INTERACTIVE 3D HAND RANKING HIERARCHY
+    ====================================================================== -->
+    <section id="hand-rankings" class="py-20 lg:py-24 relative border-t border-gold/15">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-mono uppercase tracking-widest">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            <span>Section B • Hierarchy of Power</span>
+          </div>
+          <h2 class="font-heading font-bold text-3xl sm:text-4xl lg:text-5xl text-white">
+            Interactive 3D <span class="text-gold-gradient">Hand Ranking Hierarchy</span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Click any of the 6 official Teen Patti hand rankings below to deal, flip, and inspect the 3D cards, mathematical probabilities out of 22,100 possible hands, and tie-breaker rules.
+          </p>
+        </div>
+
+        <!-- Master-Detail Layout: Left 6 Ranks Grid, Right 3D Card Stage & Deep Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Left Column: All 6 Rankings List (Descending Order of Strength) -->
+          <div class="lg:col-span-7 space-y-3.5" id="hand-rank-list" role="tablist" aria-label="Teen Patti Hand Rankings">
+            <!-- Dynamically populated by app.js and pre-rendered for instant accessibility -->
+          </div>
+
+          <!-- Right Column: Sticky 3D Hand Inspector & Probability Analyzer -->
+          <div class="lg:col-span-5 lg:sticky lg:top-24">
+            <div class="glass-panel-gold rounded-3xl p-5 sm:p-6 border border-gold/40 shadow-2xl space-y-6" id="hand-inspector-panel">
+              
+              <!-- Inspector Header -->
+              <div class="flex items-start justify-between gap-4 border-b border-gold/20 pb-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span id="inspector-rank-badge" class="px-2.5 py-0.5 rounded-md bg-gold text-obsidian font-mono font-bold text-xs uppercase">
+                      RANK #1
+                    </span>
+                    <span id="inspector-hindi-name" class="text-xs font-mono text-amberGlow uppercase tracking-wider">
+                      Trail / Set
+                    </span>
+                  </div>
+                  <h3 id="inspector-title" class="font-heading font-bold text-2xl sm:text-3xl text-white mt-1">
+                    Trio / Trail (Three of a Kind)
+                  </h3>
+                </div>
+                <div class="text-right shrink-0">
+                  <span class="text-[11px] font-mono uppercase text-slate-400 block">Strength</span>
+                  <span id="inspector-strength-value" class="font-mono font-bold text-2xl text-neonEmerald">100%</span>
+                </div>
+              </div>
+
+              <!-- Strength Meter Bar -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between text-xs font-mono">
+                  <span class="text-slate-400">HAND POWER METER</span>
+                  <span id="inspector-combos-count" class="text-gold">52 / 22,100 Hands</span>
+                </div>
+                <div class="w-full h-3 rounded-full bg-slate-900/90 border border-slate-700/70 overflow-hidden p-0.5">
+                  <div
+                    id="inspector-strength-bar"
+                    class="h-full rounded-full bg-gradient-to-r from-gold via-amberGlow to-neonEmerald transition-all duration-500"
+                    style="width: 100%"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- 3D Interactive Card Flip Stage -->
+              <div class="relative rounded-2xl felt-stage-box p-5 border border-gold/30 overflow-hidden">
+                <div class="flex items-center justify-between mb-3 text-xs font-mono text-slate-300">
+                  <span id="inspector-example-label" class="text-gold font-semibold">Featured: A♠ - A♥ - A♦</span>
+                  <span class="text-[11px] text-slate-400">Click any card to flip 3D</span>
+                </div>
+
+                <!-- 3D Cards Stage Container -->
+                <div
+                  id="inspector-3d-cards-stage"
+                  class="flex items-center justify-center gap-3 sm:gap-5 py-4 min-h-[190px] perspective-1000"
+                >
+                  <!-- 3 Interactive 3D DOM Cards rendered here -->
+                </div>
+
+                <!-- Interactive Controls for Stage -->
+                <div class="mt-3 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      id="inspector-btn-flip"
+                      class="px-3 py-1.5 rounded-lg bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                    >
+                      <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+                      <span>Flip 3D Cards</span>
+                    </button>
+                    <button
+                      type="button"
+                      id="inspector-btn-deal"
+                      class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                    >
+                      <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                      <span>Replay Deal</span>
+                    </button>
+                  </div>
+
+                  <!-- Example Preset Switcher -->
+                  <div class="flex items-center gap-1" id="inspector-example-presets">
+                    <!-- Preset buttons injected dynamically -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Detailed Stats Grid: Probability, Odds, Tie-Breaker Rules -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <div class="text-[11px] font-mono uppercase text-slate-400">Exact Probability</div>
+                  <div id="inspector-probability" class="font-mono font-bold text-lg text-white mt-0.5">0.24%</div>
+                  <div id="inspector-odds" class="text-xs font-mono text-amberGlow mt-0.5">1 in 425 hands</div>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <div class="text-[11px] font-mono uppercase text-slate-400">Strongest Example</div>
+                  <div id="inspector-strongest" class="font-mono font-bold text-lg text-neonEmerald mt-0.5">A♠ A♥ A♦</div>
+                  <div id="inspector-weakest" class="text-xs font-mono text-slate-400 mt-0.5">Lowest: 2♠ 2♥ 2♣</div>
+                </div>
+              </div>
+
+              <!-- Tie-Breaker & Strategy Callout -->
+              <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900/90 to-emeraldDeep/60 border border-gold/25 space-y-2">
+                <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-gold">
+                  <i data-lucide="scale" class="w-4 h-4"></i>
+                  <span>Official Tie-Breaker &amp; Rule</span>
+                </div>
+                <p id="inspector-tiebreaker" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  Higher rank Trio always wins. Three Aces (A-A-A) is the unbeatable royal hand in standard Teen Patti; Three Twos (2-2-2) is the lowest Trio.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION C: STEP-BY-STEP GAME LOOP SIMULATOR
+    ====================================================================== -->
+    <section id="game-simulator" class="py-20 lg:py-24 relative border-t border-gold/15">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-10 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-neonEmerald text-xs font-mono uppercase tracking-widest">
+            <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+            <span>Section C • Live Table Walkthrough</span>
+          </div>
+          <h2 class="font-heading font-bold text-3xl sm:text-4xl lg:text-5xl text-white">
+            Step-by-Step <span class="text-gold-gradient">Game Loop Simulator</span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Experience a complete 4-player Teen Patti round from the initial <strong class="text-gold">Boot</strong> to the final <strong class="text-gold">Showdown</strong>. Step through manually or engage Auto-Play.
+          </p>
+        </div>
+
+        <!-- Stepper Progress Pill Bar (Steps 1 to 6) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-6" id="sim-step-pills" role="tablist" aria-label="Game Loop Steps">
+          <button type="button" data-step="1" class="sim-step-pill active-step px-3 py-2.5 rounded-xl text-left border transition-all">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-gold block">Step 1</span>
+            <span class="font-semibold text-xs sm:text-sm text-white block truncate">The Boot (Pot)</span>
+          </button>
+          <button type="button" data-step="2" class="sim-step-pill px-3 py-2.5 rounded-xl text-left border transition-all">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Step 2</span>
+            <span class="font-semibold text-xs sm:text-sm text-slate-200 block truncate">The Deal</span>
+          </button>
+          <button type="button" data-step="3" class="sim-step-pill px-3 py-2.5 rounded-xl text-left border transition-all">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Step 3</span>
+            <span class="font-semibold text-xs sm:text-sm text-slate-200 block truncate">Blind vs. Seen</span>
+          </button>
+          <button type="button" data-step="4" class="sim-step-pill px-3 py-2.5 rounded-xl text-left border transition-all">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Step 4</span>
+            <span class="font-semibold text-xs sm:text-sm text-slate-200 block truncate">The Chaal</span>
+          </button>
+          <button type="button" data-step="5" class="sim-step-pill px-3 py-2.5 rounded-xl text-left border transition-all">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Step 5</span>
+            <span class="font-semibold text-xs sm:text-sm text-slate-200 block truncate">The Sideshow</span>
+          </button>
+          <button type="button" data-step="6" class="sim-step-pill px-3 py-2.5 rounded-xl text-left border transition-all">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">Step 6</span>
+            <span class="font-semibold text-xs sm:text-sm text-slate-200 block truncate">The Showdown</span>
+          </button>
+        </div>
+
+        <!-- Simulator Main Grid: 3D Isometric Poker Table + Step Coaching Sidebar -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          
+          <!-- Left/Center: Semi-Isometric 3D Poker Table Arena (8 cols) -->
+          <div class="lg:col-span-8 glass-panel-gold rounded-3xl p-4 sm:p-6 border border-gold/40 flex flex-col justify-between relative overflow-hidden">
+            
+            <!-- Top Table Status Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-gold/20 text-xs font-mono z-20">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-md bg-gold/20 text-gold font-bold border border-gold/40" id="sim-table-step-badge">
+                  STEP 1 OF 6
+                </span>
+                <span class="text-white font-semibold" id="sim-table-headline">The Boot (Initial Pot)</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="text-slate-400">BASE BOOT: <strong class="text-gold">₹100</strong></span>
+                <span class="text-slate-400">CURRENT STAKE: <strong class="text-neonEmerald" id="sim-current-stake">₹100</strong></span>
+              </div>
+            </div>
+
+            <!-- 3D Semi-Isometric Casino Table Wrapper -->
+            <div class="relative my-4 py-6 sm:py-10 flex items-center justify-center min-h-[430px] sm:min-h-[470px] perspective-table">
+              
+              <!-- Isometric Felt Table Oval -->
+              <div id="casino-table-3d" class="casino-table-surface relative w-full max-w-[650px] h-[360px] sm:h-[390px] rounded-[180px] flex items-center justify-center">
+                <!-- Inner Gold Rim Line -->
+                <div class="absolute inset-4 rounded-[160px] border-2 border-gold/35 pointer-events-none"></div>
+                <div class="absolute inset-8 rounded-[140px] border border-gold/15 pointer-events-none"></div>
+
+                <!-- Center Pot & Action Overlay -->
+                <div class="relative z-20 flex flex-col items-center justify-center text-center px-4 py-3 rounded-2xl bg-obsidian/85 border border-gold/40 shadow-2xl min-w-[180px]" id="sim-center-pot-box">
+                  <span class="text-[10px] font-mono uppercase tracking-widest text-gold">Central Table Pot</span>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="w-5 h-5 rounded-full bg-gradient-to-br from-gold to-amber-700 border border-white/60 inline-flex items-center justify-center text-[10px] font-bold text-obsidian shadow">₹</span>
+                    <span id="sim-pot-amount" class="font-mono font-extrabold text-2xl sm:text-3xl text-white">₹400</span>
+                  </div>
+                  <span id="sim-pot-subtext" class="text-[11px] font-mono text-emerald-400 mt-0.5">4 Players × ₹100 Boot</span>
+
+                  <!-- Flying Chip Elements Container -->
+                  <div id="sim-flying-chips-layer" class="pointer-events-none absolute inset-0 overflow-visible"></div>
+                </div>
+
+                <!-- Sideshow Private Comparison Overlay (Visible on Step 5) -->
+                <div
+                  id="sim-sideshow-overlay"
+                  class="hidden absolute z-30 bottom-16 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-2xl bg-obsidian/95 border-2 border-amberGlow p-3.5 shadow-2xl text-center"
+                >
+                  <div class="flex items-center justify-center gap-2 text-xs font-mono font-bold text-amberGlow uppercase">
+                    <i data-lucide="eye-off" class="w-4 h-4"></i>
+                    <span>Private Sideshow Comparison (Player A vs. Dealer)</span>
+                  </div>
+                  <p class="text-xs text-slate-300 mt-1">
+                    Both players are <strong class="text-white">Seen</strong>. Player A paid the ₹400 Chaal and requested a private comparison with the previous player (Dealer). Dealer's <strong class="text-amberGlow">Pair of Kings (K♣ K♥ 5♠)</strong> beats Player A's <strong class="text-red-400">7-High (7♦ 4♠ 2♥)</strong> — Player A auto-packs privately!
+                  </p>
+                </div>
+
+                <!-- SEAT 1: TOP (DEALER) -->
+                <div
+                  id="seat-dealer"
+                  class="player-seat seat-top absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center z-20"
+                >
+                  <div class="seat-card glass-panel px-3.5 py-2 rounded-2xl border border-gold/40 min-w-[165px] text-center relative transition-all">
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                      <span class="font-heading font-bold text-white flex items-center gap-1">
+                        <span class="w-4 h-4 rounded-full bg-gold text-obsidian font-mono font-extrabold text-[10px] inline-flex items-center justify-center">D</span>
+                        Dealer
+                      </span>
+                      <span id="status-dealer" class="seat-badge px-2 py-0.5 rounded text-[10px] font-mono bg-gold/20 text-gold">BOOT ₹100</span>
+                    </div>
+                    <!-- Dealt Cards Mini -->
+                    <div id="cards-dealer" class="flex items-center justify-center gap-1.5 mt-2 min-h-[44px]"></div>
+                    <div id="bet-dealer" class="text-[11px] font-mono text-slate-300 mt-1">Invested: ₹100</div>
+                  </div>
+                </div>
+
+                <!-- SEAT 2: LEFT (PLAYER A) -->
+                <div
+                  id="seat-playerA"
+                  class="player-seat seat-left absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 flex flex-col items-center z-20"
+                >
+                  <div class="seat-card glass-panel px-3.5 py-2 rounded-2xl border border-gold/30 min-w-[155px] text-center relative transition-all">
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                      <span class="font-heading font-bold text-white">Player A</span>
+                      <span id="status-playerA" class="seat-badge px-2 py-0.5 rounded text-[10px] font-mono bg-gold/20 text-gold">BOOT ₹100</span>
+                    </div>
+                    <div id="cards-playerA" class="flex items-center justify-center gap-1.5 mt-2 min-h-[44px]"></div>
+                    <div id="bet-playerA" class="text-[11px] font-mono text-slate-300 mt-1">Invested: ₹100</div>
+                  </div>
+                </div>
+
+                <!-- SEAT 3: RIGHT (PLAYER B) -->
+                <div
+                  id="seat-playerB"
+                  class="player-seat seat-right absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 flex flex-col items-center z-20"
+                >
+                  <div class="seat-card glass-panel px-3.5 py-2 rounded-2xl border border-gold/30 min-w-[155px] text-center relative transition-all">
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                      <span class="font-heading font-bold text-white">Player B</span>
+                      <span id="status-playerB" class="seat-badge px-2 py-0.5 rounded text-[10px] font-mono bg-gold/20 text-gold">BOOT ₹100</span>
+                    </div>
+                    <div id="cards-playerB" class="flex items-center justify-center gap-1.5 mt-2 min-h-[44px]"></div>
+                    <div id="bet-playerB" class="text-[11px] font-mono text-slate-300 mt-1">Invested: ₹100</div>
+                  </div>
+                </div>
+
+                <!-- SEAT 4: BOTTOM (YOU) -->
+                <div
+                  id="seat-you"
+                  class="player-seat seat-bottom absolute -bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center z-20"
+                >
+                  <div class="seat-card glass-panel-gold px-4 py-2.5 rounded-2xl border-2 border-gold min-w-[195px] text-center relative transition-all shadow-xl">
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                      <span class="font-heading font-bold text-gold flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-neonEmerald"></span>
+                        You (Hero)
+                      </span>
+                      <span id="status-you" class="seat-badge px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-neonEmerald">BOOT ₹100</span>
+                    </div>
+                    <div id="cards-you" class="flex items-center justify-center gap-1.5 mt-2 min-h-[48px]"></div>
+                    <div id="bet-you" class="text-[11px] font-mono text-amberGlow mt-1">Invested: ₹100</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Interactive Stepper Controls Bar (Exact Specification) -->
+            <div class="pt-4 border-t border-gold/20 flex flex-wrap items-center justify-between gap-3 z-20">
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  id="sim-btn-prev"
+                  class="px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600/60 text-slate-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none transition-all"
+                >
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                  <span>Previous Step</span>
+                </button>
+
+                <div
+                  id="sim-step-indicator"
+                  class="px-4 py-2.5 rounded-xl bg-obsidian/90 border border-gold/40 font-mono font-bold text-xs sm:text-sm text-gold"
+                >
+                  Step 1 of 6
+                </div>
+
+                <button
+                  type="button"
+                  id="sim-btn-next"
+                  class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold to-amberGlow text-obsidian font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-md shadow-gold/20 hover:shadow-gold/40 transition-all"
+                >
+                  <span>Next Step</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  id="sim-btn-autoplay"
+                  class="px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-neonEmerald font-mono font-semibold text-xs sm:text-sm flex items-center gap-2 transition-all"
+                >
+                  <i data-lucide="play-circle" class="w-4 h-4" id="sim-autoplay-icon"></i>
+                  <span id="sim-autoplay-label">Auto-Play</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Sidebar: Step Coaching, Interactive Rule Toggle & Action Log (4 cols) -->
+          <div class="lg:col-span-4 flex flex-col justify-between gap-5">
+            
+            <!-- Detailed Step Explanation Card -->
+            <div class="glass-panel rounded-3xl p-5 sm:p-6 border border-gold/30 space-y-4 flex-1">
+              <div class="flex items-center justify-between">
+                <span id="sim-coach-tag" class="px-3 py-1 rounded-full bg-gold/15 border border-gold/30 text-gold text-xs font-mono uppercase">
+                  Phase 1 • Mandatory Ante
+                </span>
+                <span class="text-xs font-mono text-slate-400">Keys: ← / →</span>
+              </div>
+
+              <h3 id="sim-coach-title" class="font-heading font-bold text-2xl text-white">
+                Step 1: The Boot (Initial Pot)
+              </h3>
+
+              <p id="sim-coach-desc" class="text-slate-300 text-sm leading-relaxed">
+                Before any cards are dealt, every player places an equal initial stake called the <strong class="text-gold">Boot</strong> into the center pot. This guarantees action in every hand.
+              </p>
+
+              <!-- Dynamic Rule Callout Box -->
+              <div id="sim-coach-callout" class="p-4 rounded-2xl bg-slate-900/90 border border-gold/25 space-y-2">
+                <div class="text-xs font-mono uppercase text-amberGlow font-semibold">Key Rule Mechanics</div>
+                <ul id="sim-coach-bullets" class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                  <li>All 4 players contribute ₹100 Boot → Starting Pot is ₹400.</li>
+                  <li>Dealer button rotates clockwise after every hand.</li>
+                </ul>
+              </div>
+
+              <!-- Interactive Blind vs Seen Betting Multiplier Toggle (Highlighted on Step 3, usable anytime) -->
+              <div id="sim-blind-seen-widget" class="p-4 rounded-2xl bg-gradient-to-br from-emeraldDeep/80 to-slate-900/95 border border-emerald-500/30 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-mono uppercase tracking-wider text-neonEmerald font-semibold flex items-center gap-1.5">
+                    <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                    <span>Blind (1×) vs. Seen (2×) Rule</span>
+                  </span>
+                  <span class="text-[11px] font-mono text-slate-400">Interactive Toggle</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    id="toggle-mode-blind"
+                    class="px-3 py-2 rounded-xl border border-slate-700 bg-slate-900/70 text-xs font-mono text-slate-300 text-center transition-all"
+                  >
+                    <span class="block font-bold text-white">Play Blind (1×)</span>
+                    <span class="text-[11px] text-slate-400">Cards Face-Down</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="toggle-mode-seen"
+                    class="px-3 py-2 rounded-xl border border-gold bg-gold/20 text-xs font-mono text-gold text-center transition-all"
+                  >
+                    <span class="block font-bold text-white">Play Seen (2×)</span>
+                    <span class="text-[11px] text-amberGlow">Chaal Minimum 2×</span>
+                  </button>
+                </div>
+
+                <div id="blind-seen-calc-output" class="text-xs font-mono text-slate-200 bg-obsidian/80 px-3 py-2 rounded-xl border border-white/10">
+                  Current Stake: <strong class="text-gold">₹100</strong> → As a <strong class="text-neonEmerald">Seen (Chaal)</strong> player, you must bet <strong class="text-white">₹200 (2×)</strong> to Call or <strong class="text-amberGlow">₹400 (4×)</strong> to Raise.
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Round Action Feed -->
+            <div class="glass-panel rounded-2xl p-4 border border-slate-800">
+              <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                <span>Live Table Action Log</span>
+                <span id="sim-active-players-count" class="text-neonEmerald">4 Active Players</span>
+              </div>
+              <div id="sim-action-log" class="space-y-1.5 text-xs font-mono max-h-[125px] overflow-y-auto pr-1">
+                <!-- Populated dynamically per step -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION D: "WHICH HAND WINS?" GAMIFIED QUIZ ENGINE
+    ====================================================================== -->
+    <section id="quiz-engine" class="py-20 lg:py-24 relative border-t border-gold/15">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-10 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amberGlow text-xs font-mono uppercase tracking-widest">
+            <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+            <span>Section D • Rapid-Fire Arena</span>
+          </div>
+          <h2 class="font-heading font-bold text-3xl sm:text-4xl lg:text-5xl text-white">
+            "Which Hand Wins?" <span class="text-gold-gradient">Gamified Quiz Engine</span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Two 3-card Teen Patti hands are dealt side-by-side. Click the winning hand before the <strong class="text-gold">10-second timer</strong> runs out!
+          </p>
+        </div>
+
+        <!-- Quiz Arena Container -->
+        <div class="glass-panel-gold rounded-3xl p-5 sm:p-8 border border-gold/40 shadow-2xl space-y-6">
+          
+          <!-- Live Scoreboard & Timer Header -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pb-5 border-b border-gold/20">
+            <div class="p-3.5 rounded-2xl bg-obsidian/80 border border-gold/30 flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-mono uppercase text-slate-400 block">Streak Counter</span>
+                <span id="quiz-streak" class="font-mono font-extrabold text-2xl text-amberGlow">0 🔥</span>
+              </div>
+              <span id="quiz-best-streak" class="text-[11px] font-mono text-slate-400">Best: 0</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-obsidian/80 border border-emerald-500/30 flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-mono uppercase text-slate-400 block">Accuracy</span>
+                <span id="quiz-accuracy" class="font-mono font-extrabold text-2xl text-neonEmerald">100%</span>
+              </div>
+              <span id="quiz-score-fraction" class="text-[11px] font-mono text-slate-400">0 / 0</span>
+            </div>
+
+            <div class="col-span-2 p-3.5 rounded-2xl bg-obsidian/80 border border-gold/30 flex flex-col justify-between">
+              <div class="flex items-center justify-between text-xs font-mono">
+                <span class="text-slate-300 uppercase flex items-center gap-1.5">
+                  <i data-lucide="timer" class="w-4 h-4 text-gold"></i>
+                  <span>Decision Timer</span>
+                </span>
+                <span id="quiz-timer-text" class="font-bold text-base text-gold">10.0s</span>
+              </div>
+              <div class="w-full h-2.5 rounded-full bg-slate-900 overflow-hidden mt-2">
+                <div
+                  id="quiz-timer-bar"
+                  class="h-full bg-gradient-to-r from-neonEmerald via-amberGlow to-crimson transition-all duration-100"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Hand Comparison Battle -->
+          <div class="grid grid-cols-1 md:grid-cols-11 gap-5 items-stretch">
+            
+            <!-- HAND A BUTTON CARD -->
+            <div
+              id="quiz-hand-a"
+              role="button"
+              tabindex="0"
+              aria-label="Select Hand A as Winner"
+              class="md:col-span-5 quiz-hand-card group relative rounded-2xl p-5 sm:p-6 bg-slate-900/80 border-2 border-gold/30 hover:border-gold cursor-pointer transition-all flex flex-col justify-between select-none"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-lg bg-gold/20 text-gold font-mono font-bold text-xs">HAND A</span>
+                  <span class="text-xs font-mono text-slate-400 hidden sm:inline">Press [1] or Click</span>
+                </div>
+                <span id="quiz-hand-a-badge" class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                  Mystery Rank
+                </span>
+              </div>
+
+              <!-- 3 Cards for Hand A -->
+              <div id="quiz-hand-a-cards" class="flex items-center justify-center gap-3 sm:gap-4 my-4 min-h-[145px]">
+                <!-- Populated by app.js -->
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+                <span class="text-slate-400 group-hover:text-white transition-colors">Click to declare Hand A Winner</span>
+                <span class="text-gold font-bold group-hover:translate-x-1 transition-transform">SELECT →</span>
+              </div>
+            </div>
+
+            <!-- VS Divider -->
+            <div class="md:col-span-1 flex md:flex-col items-center justify-center py-2">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-gold to-amber-700 p-[1.5px] shadow-lg shadow-gold/20">
+                <div class="w-full h-full bg-obsidian rounded-[14px] flex items-center justify-center font-heading font-extrabold text-gold text-base">
+                  VS
+                </div>
+              </div>
+            </div>
+
+            <!-- HAND B BUTTON CARD -->
+            <div
+              id="quiz-hand-b"
+              role="button"
+              tabindex="0"
+              aria-label="Select Hand B as Winner"
+              class="md:col-span-5 quiz-hand-card group relative rounded-2xl p-5 sm:p-6 bg-slate-900/80 border-2 border-gold/30 hover:border-gold cursor-pointer transition-all flex flex-col justify-between select-none"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-lg bg-gold/20 text-gold font-mono font-bold text-xs">HAND B</span>
+                  <span class="text-xs font-mono text-slate-400 hidden sm:inline">Press [2] or Click</span>
+                </div>
+                <span id="quiz-hand-b-badge" class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                  Mystery Rank
+                </span>
+              </div>
+
+              <!-- 3 Cards for Hand B -->
+              <div id="quiz-hand-b-cards" class="flex items-center justify-center gap-3 sm:gap-4 my-4 min-h-[145px]">
+                <!-- Populated by app.js -->
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+                <span class="text-slate-400 group-hover:text-white transition-colors">Click to declare Hand B Winner</span>
+                <span class="text-gold font-bold group-hover:translate-x-1 transition-transform">SELECT →</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Instant Feedback Explanation Banner -->
+          <div
+            id="quiz-feedback-box"
+            class="rounded-2xl p-4 sm:p-5 bg-obsidian/90 border border-gold/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+            role="status"
+            aria-live="polite"
+          >
+            <div class="flex items-start gap-3.5">
+              <div id="quiz-feedback-icon" class="w-10 h-10 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center shrink-0 text-gold font-bold">
+                ?
+              </div>
+              <div>
+                <h4 id="quiz-feedback-title" class="font-heading font-bold text-base sm:text-lg text-white">
+                  Make Your Call! Click Hand A or Hand B
+                </h4>
+                <p id="quiz-feedback-explanation" class="text-xs sm:text-sm text-slate-300 mt-0.5">
+                  Compare the 3-card combinations using official Teen Patti rules (Trio &gt; Pure Sequence &gt; Sequence &gt; Color &gt; Pair &gt; High Card).
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 shrink-0 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                id="quiz-btn-pause-timer"
+                class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-mono text-slate-300 transition-all"
+              >
+                Pause Timer
+              </button>
+              <button
+                type="button"
+                id="quiz-btn-next"
+                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold to-amberGlow text-obsidian font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-gold/20 hover:scale-[1.02] transition-all flex items-center gap-1.5"
+              >
+                <span>Deal Next Hand</span>
+                <i data-lucide="shuffle" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION E: TERMINOLOGY & RULE CHEAT SHEET GRID
+    ====================================================================== -->
+    <section id="glossary" class="py-20 lg:py-24 relative border-t border-gold/15">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-10 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-mono uppercase tracking-widest">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span>Section E • Casino Lingo &amp; Rules</span>
+          </div>
+          <h2 class="font-heading font-bold text-3xl sm:text-4xl lg:text-5xl text-white">
+            Terminology &amp; <span class="text-gold-gradient">Rule Cheat Sheet Grid</span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Search and filter essential Teen Patti table terms — from <strong class="text-gold">Boot</strong> and <strong class="text-gold">Chaal</strong> to <strong class="text-gold">Sideshow</strong> and <strong class="text-gold">Pot Limit</strong>.
+          </p>
+        </div>
+
+        <!-- Search & Category Filter Bar -->
+        <div class="glass-panel rounded-2xl p-4 border border-gold/30 mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+          <!-- Search Input -->
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-gold absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input
+              type="search"
+              id="glossary-search"
+              placeholder="Search Teen Patti terms (e.g., Boot, Chaal, Blind, Pack, Sideshow, Show, Pot Limit)..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-obsidian/90 border border-slate-700 focus:border-gold focus:outline-none text-sm text-white placeholder-slate-400 font-sans"
+              aria-label="Search Teen Patti Terminology"
+            />
+          </div>
+
+          <!-- Category Filter Buttons -->
+          <div class="flex flex-wrap items-center gap-2" id="glossary-filter-bar" role="group" aria-label="Filter Terms by Category">
+            <button type="button" data-category="all" class="glossary-filter-btn active-filter px-3.5 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all">
+              All Terms (9)
+            </button>
+            <button type="button" data-category="Betting" class="glossary-filter-btn px-3.5 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all">
+              Betting
+            </button>
+            <button type="button" data-category="Actions" class="glossary-filter-btn px-3.5 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all">
+              Actions
+            </button>
+            <button type="button" data-category="Showdown" class="glossary-filter-btn px-3.5 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all">
+              Showdown &amp; Limits
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Column Glassmorphism Card Grid -->
+        <div id="glossary-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Pre-rendered & dynamically filterable cards -->
+        </div>
+
+        <!-- Empty State for Search -->
+        <div id="glossary-empty" class="hidden text-center py-12 glass-panel rounded-2xl border border-slate-800">
+          <p class="text-slate-300 font-heading text-lg">No matching Teen Patti terms found.</p>
+          <button type="button" id="glossary-reset-btn" class="mt-3 px-4 py-2 rounded-xl bg-gold/20 text-gold border border-gold/40 text-xs font-mono uppercase">
+            Reset Search Filter
+          </button>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================================
+       SECTION F: RESPONSIVE FOOTER
+  ====================================================================== -->
+  <footer id="footer" class="relative z-10 border-t border-gold/25 bg-obsidian/95 pt-14 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
+        
+        <!-- Col 1: Brand & Audio Toggle (4 cols) -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-amber-700 flex items-center justify-center text-obsidian font-heading font-bold text-lg">
+              ♠
+            </div>
+            <span class="font-heading font-bold text-lg text-white">
+              TEEN PATTI <span class="text-gold">ROYALE</span>
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+            An interactive 3D visual educational experience built to teach beginners and enthusiasts the mathematics, hand rankings, and etiquette of India's classic 3-card game.
+          </p>
+          <div class="pt-1 flex items-center gap-3">
+            <button
+              type="button"
+              id="footer-sound-toggle"
+              class="px-4 py-2.5 rounded-xl glass-panel border border-gold/40 hover:border-gold text-xs font-mono uppercase tracking-wider text-gold flex items-center gap-2 transition-all"
+            >
+              <i data-lucide="volume-2" class="w-4 h-4"></i>
+              <span id="footer-sound-text">Mute / Unmute Card Audio: ON</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Col 2: Quick Links & Rules Summary (4 cols) -->
+        <div class="lg:col-span-4 space-y-3">
+          <h3 class="font-heading font-bold text-sm uppercase tracking-wider text-gold">
+            Quick Rules Summary &amp; Navigation
+          </h3>
+          <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
+            <li>
+              <a href="#hero" class="hover:text-gold transition-colors flex items-center gap-2">
+                <span class="text-gold">♦</span> 3D Royal Hero Showcase (A♠ K♠ Q♠)
+              </a>
+            </li>
+            <li>
+              <a href="#hand-rankings" class="hover:text-gold transition-colors flex items-center gap-2">
+                <span class="text-gold">♦</span> 6 Core Hand Rankings (Trio 100% → High Card 20%)
+              </a>
+            </li>
+            <li>
+              <a href="#game-simulator" class="hover:text-gold transition-colors flex items-center gap-2">
+                <span class="text-gold">♦</span> 6-Step Betting Loop (Boot, Deal, Blind 1× / Seen 2×, Show)
+              </a>
+            </li>
+            <li>
+              <a href="#quiz-engine" class="hover:text-gold transition-colors flex items-center gap-2">
+                <span class="text-gold">♦</span> "Which Hand Wins?" 10s Timed Quiz Engine
+              </a>
+            </li>
+            <li>
+              <a href="#glossary" class="hover:text-gold transition-colors flex items-center gap-2">
+                <span class="text-gold">♦</span> Terminology Cheat Sheet (Boot, Chaal, Sideshow, Pot Limit)
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Keyboard Shortcut Key Guide (4 cols) -->
+        <div class="lg:col-span-4 space-y-3">
+          <h3 class="font-heading font-bold text-sm uppercase tracking-wider text-gold">
+            Keyboard Shortcut Guide
+          </h3>
+          <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400">Prev / Next Step</span>
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-gold border border-gold/30">← / →</kbd>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400">Auto-Play Table</span>
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-gold border border-gold/30">Space</kbd>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400">Pick Hand A / B</span>
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-gold border border-gold/30">1 / 2</kbd>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+              <span class="text-slate-400">Mute Audio</span>
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-gold border border-gold/30">M</kbd>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Educational Disclaimer & Copyright -->
+      <div class="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <p class="text-center sm:text-left">
+          <strong class="text-amberGlow">Disclaimer:</strong> Strictly for <strong class="text-slate-200">Educational &amp; Entertainment purposes only</strong>. No real-money gambling, wagering, or cash prizes are offered on this platform.
+        </p>
+        <p class="font-mono text-[11px] text-slate-400 shrink-0">
+          © 2026 Teen Patti Royale 3D Academy • 60fps WebGL &amp; CSS3D
+        </p>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Main ES6 Application Module -->
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
